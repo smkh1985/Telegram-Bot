@@ -1,25 +1,42 @@
-from telegram import Bot
-from telegram.ext import CommandHandler,Updater
+from googletrans import Translator
 
 
-token = '478164597:AAHVqFriOYPr9NfMRN-2GEOP5BUSIycN9EI'
-bot = Bot(token)
-
-botInfo = bot.get_me()
-print(botInfo.name)
-
-updater = Updater(bot= bot)
-dispatcher = updater.dispatcher
-
-def startFcn(bot,update):
-    chat = update.message.chat
-    chatid = chat['id']
-    firstName = chat['first_name']
-    message = 'سلام {}. من یک ربات هستم که میتوانم در انجام کارهایی از قبیل ترجمه یک متن به زبانهای مختلف به تو کمک کنم.'
-    bot.send_message(chat_id = chatid,text =message.format(firstName))
+from telegram.ext import Updater,CommandHandler,MessageHandler, Filters
+u=Updater('478164597:AAHVqFriOYPr9NfMRN-2GEOP5BUSIycN9EI')
+dispatcher = u.dispatcher
 
 
-start_handler = CommandHandler('start',startFcn)
-dispatcher.add_handler(start_handler)
+def Translate(bot, update):
+##    chat=update.message.chat
+    inputname= update.message.text
+##    inputname =' '.join(text)
+    print(inputname)
+    translator = Translator()
+    translations = translator.translate([inputname], dest='fa')
+    for translation in translations:
+        bot.send_message(chat_id= update.message.chat_id,text=translation.text)
+##    if(inputname=='ali'):
+##        text = 'alavi'
+##    elif inputname == 'shima':
+##        text ='Javanmardi'
+##    elif inputname == 'majid':
+##        text = 'KHORASHADIZADEH'
+##    else:
+##        text = 'I dont know {}'.format(inputname)
+##    name =chat['first_name']
+    bot.send_message(chat_id= update.message.chat_id,text=text)
+    print('welcom to this world')
+def start_Func(bot, update):
+    StartText='کاربر گرامي {} اين ربات يک مترجم انگليسي به فارسي است که توسط تیم پژوهشی پردازش تصویر دانشگاه یزد توسعه یافته است. لطفا متن خود را وارد کنید'.format(update.message.chat['first_name'])
+    bot.send_message(chat_id= update.message.chat_id,text=StartText)
+    print('this is a robot that can help u')
 
-updater.start_polling()
+Translate_handler = MessageHandler(Filters.text, Translate)
+dispatcher.add_handler(Translate_handler)
+
+startHandler=CommandHandler('start',start_Func)
+##WelCome_handler=CommandHandler('getname',getname_Func, pass_args=True)
+dispatcher.add_handler(startHandler)
+##dispatcher.add_handler(WelCome_handler)
+u.start_polling()
+u.idle()
